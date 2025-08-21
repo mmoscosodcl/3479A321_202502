@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: _color,
         onPressed: null,
         tooltip: 'Increment',
-        child: const Icon(Icons.brush_outlined),
+        child: const Icon(Icons.stop_circle_outlined),
       ), // This trailing comma makes auto-formatting nicer for build methods.
       persistentFooterButtons: [
         FloatingActionButton(
