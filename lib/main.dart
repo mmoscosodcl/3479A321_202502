@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '3479A321_202502',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -28,9 +28,9 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: '3479A321_202502'),
     );
   }
 }
@@ -55,6 +55,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  int _defaultValue = 12;
+  Color _color = Colors.cyanAccent;
 
   void _incrementCounter() {
     setState(() {
@@ -66,6 +68,29 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+
+  void _decrementCounter() {
+    setState(() {
+      _counter--;
+    });
+  }
+
+  void _restoreCounter() {
+    setState(() {
+      _counter = _defaultValue;
+    });
+  }
+
+  void _setColor() {
+    setState(() {
+      if (_color != Colors.green) {
+        _color = Colors.green; // Change to green if not already
+      } else {
+        _color = Colors.cyanAccent; // Reset to default color
+      }
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
+            const Text('Pixel Art sobre una grilla personalizable:'),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
@@ -113,10 +138,43 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        backgroundColor: _color,
+        onPressed: null,
         tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.brush_outlined),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+      persistentFooterButtons: [
+        FloatingActionButton(
+          onPressed: _decrementCounter,
+          tooltip: 'Decrement',
+          child: const Icon(Icons.remove),
+        ),
+        FloatingActionButton(
+          onPressed: _restoreCounter,
+          tooltip: 'Restore',
+          child: const Icon(Icons.restore),
+        ),
+        FloatingActionButton(
+          onPressed: _incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ),
+        ElevatedButton(
+          onPressed: _incrementCounter,
+          child: Column(
+            children: [
+              Icon(Icons.add),
+              Text('Incrementar'),
+              ]),
+        ),
+        FloatingActionButton(
+          onPressed: _setColor,
+          backgroundColor: _color,
+          tooltip: 'Custom Action',
+          child: const Icon(Icons.star),
+        ),
+
+      ],
     );
   }
 }
