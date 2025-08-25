@@ -58,6 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _defaultValue = 12;
   Color _color = Colors.cyanAccent;
 
+  Color _newColor = Colors.red;
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -138,8 +140,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: _color,
         onPressed: null,
+        backgroundColor: _color,
         tooltip: 'Increment',
         child: const Icon(Icons.stop_circle_outlined),
       ), // This trailing comma makes auto-formatting nicer for build methods.
@@ -159,21 +161,12 @@ class _MyHomePageState extends State<MyHomePage> {
           tooltip: 'Increment',
           child: const Icon(Icons.add),
         ),
-        ElevatedButton(
-          onPressed: _incrementCounter,
-          child: Column(
-            children: [
-              Icon(Icons.add),
-              Text('Incrementar'),
-              ]),
-        ),
         FloatingActionButton(
           onPressed: _setColor,
           backgroundColor: _color,
           tooltip: 'Custom Action',
           child: const Icon(Icons.star),
         ),
-
       ],
     );
   }
