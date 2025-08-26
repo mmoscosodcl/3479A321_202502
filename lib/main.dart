@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,6 +11,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    var logger = Logger();
+    logger.d("Logger is working!");
+    
     return MaterialApp(
       title: '3479A321_202502',
       theme: ThemeData(
@@ -96,6 +101,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    var logger = Logger();
+    logger.d("Logger is working in build method of _MyHomePageState!");
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -136,6 +144,31 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Image.asset(
+                    'assets/Pixel-Art-Hot-Pepper-2-1.webp',
+                    width: 200, // Optional: set the width of the image
+                    height: 200, // Optional: set the height of the image
+                    fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
+                  ),
+                  Image.asset(
+                    'assets/Pixel-Art-Pizza-2.webp',
+                    width: 200, // Optional: set the width of the image
+                    height: 200, // Optional: set the height of the image
+                    fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
+                  ),
+                  Image.asset(
+                    'assets/Pixel-Art-Watermelon-3.webp',
+                    width: 200, // Optional: set the width of the image
+                    height: 200, // Optional: set the height of the image
+                    fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
