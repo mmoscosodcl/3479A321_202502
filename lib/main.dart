@@ -141,35 +141,31 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('Pixel Art sobre una grilla personalizable:'),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children:[ Image.asset(
+                  'assets/Pixel-Art-Hot-Pepper-2-1.webp',
+                  width: 400, // Optional: set the width of the image
+                  fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
+                ),
+                Image.asset(
+                  'assets/Pixel-Art-Pizza-2.webp',
+                  width: 400, // Optional: set the width of the image
+                  fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
+                ),
+                Image.asset(
+                  'assets/Pixel-Art-Watermelon-3.webp',
+                  width: 400, // Optional: set the width of the image
+                  fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
+                ),
+                ]
+              ),
+            ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Image.asset(
-                    'assets/Pixel-Art-Hot-Pepper-2-1.webp',
-                    width: 200, // Optional: set the width of the image
-                    height: 200, // Optional: set the height of the image
-                    fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
-                  ),
-                  Image.asset(
-                    'assets/Pixel-Art-Pizza-2.webp',
-                    width: 200, // Optional: set the width of the image
-                    height: 200, // Optional: set the height of the image
-                    fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
-                  ),
-                  Image.asset(
-                    'assets/Pixel-Art-Watermelon-3.webp',
-                    width: 200, // Optional: set the width of the image
-                    height: 200, // Optional: set the height of the image
-                    fit: BoxFit.cover, // Optional: how the image should be resized to fit the box
-                  ),
-                ],
-              ),
-            )
           ],
         ),
       ),
