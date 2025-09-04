@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
+import 'package:playground_2502/screens/list_creations.dart';
 import 'package:playground_2502/screens/my_home_page.dart';
 import 'package:playground_2502/screens/list_art.dart';
 void main() {
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
       )
       ),
       home: const MyHomePage(title: '3479A321_202502'),
-      //home: ListArtScreen(),
+      //home: ListCreationScreen(),
     );
   }
 }

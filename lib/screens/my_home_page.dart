@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:playground_2502/screens/about.dart';
 import 'package:playground_2502/screens/list_art.dart';
+import 'package:playground_2502/screens/list_creations.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -65,12 +66,22 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(builder: (context) => AboutScreen()), // Navigate to AboutScreen
           );
         }
+        if (value == 'list_creation') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ListCreationScreen()), // Navigate to ListCreationScreen
+          );
+        }
       },
       itemBuilder: (BuildContext context) {
         return [
           const PopupMenuItem<String>(
             value: 'about',
             child: Text('About'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'list_creation',
+            child: Text('Lista Creaciones'),
           ),
         ];
       },
