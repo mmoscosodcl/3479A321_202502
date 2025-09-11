@@ -23,7 +23,7 @@ Nuestro proyecto corresponde a una aplicación cross-platform que permite la int
 **Cliente:** Flutter, Android SDK.
 
 
-
+```mermaid
 mindmap
   root((mindmap))
     Origins
