@@ -1,16 +1,44 @@
-# playground_2502
 
-A new Flutter project.
+# PixelAppRT
 
-## Getting Started
+Nuestro proyecto corresponde a una aplicación cross-platform que permite la interacción con el arte pixel a través de creación de imagenes digitales para el proposito que el usuario quiera.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Características
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Requerimiento funcional.
+- La aplicación debe permitir ajustar el tamaño del lienzo según las preferencias del usuario para la creación de arte pixel. Se considera como rango de tamaños entre 8 y 64 recuadros donde cada recuadro representa el concepto de un pixel.
+- Requerimiento no funcional.
+- La aplicación debe garantizar la seguridad de los datos resguardando las cuentas de usaurios y los derechos de autor de cada obra realizada por los usuarios a través de todos los medios de difusión. 
+
+
+- Historia de usuario
+- [Usuario][Objetivo][Resultado]
+- Como artista quiero crear diseños para poder compartirlos a la comunidad y que pueda ser utilizados como otros artistas estime conveniente.
+
+- Como artistia quiero poder seleccionar colores primarios y además poder seleccionar de una paleta en base a la selección RGB nuevos colores para tenerlos disponibles y almacenarlos en mi paleta de colores personalizada. 
+## Pila de Tecnología 
+
+**Cliente:** Flutter, Android SDK.
+
+
+```mermaid
+mindmap
+  root((mindmap))
+    Origins
+      Long history
+      ::icon(fa fa-book)
+      Popularisation
+        British popular psychology author Tony Buzan
+    Research
+      On effectiveness<br/>and features
+      On Automatic creation
+        Uses
+            Creative techniques
+            Strategic planning
+            Argument mapping
+    Tools
+      Pen and paper
+      Mermaid
+
