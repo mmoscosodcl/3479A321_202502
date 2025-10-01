@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
-import 'package:playground_2502/screens/list_creations.dart';
+import 'package:playground_2502/providers/config_provider.dart';
 import 'package:playground_2502/screens/my_home_page.dart';
-import 'package:playground_2502/screens/list_art.dart';
+import 'package:provider/provider.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -14,29 +15,29 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    var logger = Logger();
-    logger.d("Logger is working!");
-    
-    return MaterialApp(
-      title: '3479A321_202502',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
-        textTheme: TextTheme(
-        displayLarge: const TextStyle(
-          fontSize: 72,
-          fontWeight: FontWeight.bold,
+    return ChangeNotifierProvider<ConfigurationData>(
+      create: (context) => ConfigurationData(),
+      child: MaterialApp(
+        title: '3479A321_202502',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+          textTheme: TextTheme(
+            displayLarge: const TextStyle(
+              fontSize: 72,
+              fontWeight: FontWeight.bold,
+            ),
+            // ···
+            titleLarge: GoogleFonts.oswald(
+              fontSize: 30,
+              fontStyle: FontStyle.italic,
+            ),
+            bodyMedium: GoogleFonts.merriweather(),
+            displaySmall: GoogleFonts.pacifico(),
+          )
         ),
-        // ···
-        titleLarge: GoogleFonts.oswald(
-          fontSize: 30,
-          fontStyle: FontStyle.italic,
-        ),
-        bodyMedium: GoogleFonts.merriweather(),
-        displaySmall: GoogleFonts.pacifico(),
-      )
-      ),
-      home: const MyHomePage(title: '3479A321_202502'),
-      //home: ListCreationScreen(),
+        home: const MyHomePage(title: '3479A321_202502'),
+        //home: ListCreationScreen(),
+      ), 
     );
   }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:playground_2502/screens/about.dart';
+import 'package:playground_2502/screens/configuration.dart';
 import 'package:playground_2502/screens/list_art.dart';
 import 'package:playground_2502/screens/list_creations.dart';
+import 'package:playground_2502/screens/pixel_art.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -72,6 +74,18 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(builder: (context) => ListCreationScreen()), // Navigate to ListCreationScreen
           );
         }
+        if (value == 'list_art') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ListArtScreen()), // Navigate to ListArtScreen
+          );
+        }
+        if (value == 'configuration') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ConfigurationScreen()), // Navigate to ConfigurationScreen
+          );
+        }
       },
       itemBuilder: (BuildContext context) {
         return [
@@ -82,6 +96,14 @@ class _MyHomePageState extends State<MyHomePage> {
           const PopupMenuItem<String>(
             value: 'list_creation',
             child: Text('Lista Creaciones'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'list_art',
+            child: Text('Lista Artes'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'configuration',
+            child: Text('Configuración'),
           ),
         ];
       },
@@ -148,11 +170,16 @@ class _MyHomePageState extends State<MyHomePage> {
        ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: null,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PixelArtScreen()),
+          );
+        },
         backgroundColor: _color,
         tooltip: 'Increment',
         heroTag: 'screen1_fab',
-        child: const Icon(Icons.stop_circle_outlined),
+        child: const Icon(Icons.new_label),
       ), // This trailing comma makes auto-formatting nicer for build methods.
       persistentFooterButtons: [
         ElevatedButton(
