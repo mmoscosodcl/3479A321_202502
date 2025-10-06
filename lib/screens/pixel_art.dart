@@ -14,6 +14,14 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   Color _selectedColor = Colors.black;
   bool _isPaintMode = false;
 
+  //Matrix for the pixel art
+  // This would typically be loaded from a JSON file.
+  List<List<int>> _pixelArtGrid = [];
+  //Set all the _pixelArtGrid to -1 initially
+  
+
+
+
   // The data in the JSON will look like this.
   final Map<String, dynamic> _pixelArtData = {
     "size": 8,
@@ -124,20 +132,40 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
       _sizeGrid = size;
       _cellColors.clear();
 
+      int j = 0, k = 0;
       for (int i = 0; i < grid.length; i++) {
+         
+        _pixelArtGrid[j][k] = grid[i]; // Update the matrix
         final colorIndex = grid[i];
         if (colorIndex >= 0 && colorIndex < paletteColors.length) {
           _cellColors.add(paletteColors[colorIndex]);
         } else {
           _cellColors.add(Colors.transparent);
         }
+        k++;
+        if (k >= _sizeGrid) {
+          k = 0;
+          j++;
+        }
       }
     });
 
+    _printPixelArtGrid();
     logger.d(
       "Pixel art loaded: ${_sizeGrid}x$_sizeGrid grid with ${paletteColors.length} colors",
     );
   }
+
+  void _initializePixelArtGrid(int size) {
+    _pixelArtGrid = List.generate(
+      size,
+      (_) => List.generate(size, (_) => -1),
+    );
+  }
+  void _printPixelArtGrid() {
+    print(_pixelArtGrid);
+  } 
+
 
   @override
   void initState() {
@@ -148,7 +176,14 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     _sizeGrid = _pixelArtData['size'] as int;
     logger.d("Grid size set to: $_sizeGrid");
 
+    _initializePixelArtGrid(_sizeGrid);
+
     _loadFinalPixelArtFromData();
+
+    
+    _printPixelArtGrid();
+
+
   }
 
   @override
