@@ -18,9 +18,6 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   // This would typically be loaded from a JSON file.
   List<List<int>> _pixelArtGrid = [];
   //Set all the _pixelArtGrid to -1 initially
-  
-
-
 
   // The data in the JSON will look like this.
   final Map<String, dynamic> _pixelArtData = {
@@ -36,70 +33,14 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
       0xFF00FFFF,
     ],
     "grid": [
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      1,
-      2,
-      2,
-      2,
-      2,
-      1,
-      0,
-      1,
-      2,
-      3,
-      3,
-      3,
-      3,
-      2,
-      1,
-      1,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      1,
-      1,
-      2,
-      3,
-      4,
-      4,
-      3,
-      2,
-      1,
-      1,
-      2,
-      3,
-      3,
-      3,
-      3,
-      2,
-      1,
-      0,
-      1,
-      2,
-      2,
-      2,
-      2,
-      1,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
+      [0, 0, 1, 1, 1, 1, 7, 0],
+      [0, 1, 2, 2, 2, 2, 1, 0],
+      [1, 2, 6, 6, 3, 3, 2, 1],
+      [1, 2, 6, 6, 2, 2, 2, 1],
+      [1, 2, 7, 4, 4, 3, 2, 1],
+      [1, 2, 3, 3, 3, 3, 2, 1],
+      [0, 1, 2, 2, 2, 2, 1, 0],
+      [0, 0, 1, 1, 5, 5, 5, 5],
     ],
   };
 
@@ -115,40 +56,60 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
         .toList();
   }
 
-  int _getColorIndexForCell(int cellIndex) {
-    final grid = _pixelArtData['grid'] as List<int>;
-    if (cellIndex >= 0 && cellIndex < grid.length) {
-      return grid[cellIndex];
+  int _getColorIndexForCell(int row, int column) {
+    if (row >= 0 &&
+        row < _pixelArtGrid.length &&
+        column >= 0 &&
+        column < _pixelArtGrid[row].length) {
+      return _pixelArtGrid[row][column];
     }
     return -1;
   }
 
   void _loadFinalPixelArtFromData() {
     final size = _pixelArtData['size'] as int;
-    final grid = _pixelArtData['grid'] as List<int>;
+    final grid = _pixelArtData['grid'] as List<List<int>>;
     final paletteColors = _getConvertedPaletteColors();
 
     setState(() {
       _sizeGrid = size;
       _cellColors.clear();
 
-      int j = 0, k = 0;
+      _pixelArtGrid = List.generate(grid.length, (i) => List.from(grid[i]));
+
       for (int i = 0; i < grid.length; i++) {
-         
-        _pixelArtGrid[j][k] = grid[i]; // Update the matrix
-        final colorIndex = grid[i];
-        if (colorIndex >= 0 && colorIndex < paletteColors.length) {
-          _cellColors.add(paletteColors[colorIndex]);
-        } else {
-          _cellColors.add(Colors.transparent);
-        }
-        k++;
-        if (k >= _sizeGrid) {
-          k = 0;
-          j++;
+        for (int j = 0; j < grid[i].length; j++) {
+          final colorIndex = grid[i][j];
+          if (colorIndex >= 0 && colorIndex < paletteColors.length) {
+            _cellColors.add(paletteColors[colorIndex]);
+          } else {
+            _cellColors.add(Colors.transparent);
+          }
         }
       }
     });
+
+    // setState(() {
+    //   _sizeGrid = size;
+    //   _cellColors.clear();
+
+    //   int j = 0, k = 0;
+    //   for (int i = 0; i < grid.length; i++) {
+
+    //     _pixelArtGrid[j][k] = grid[i]; // Update the matrix
+    //     final colorIndex = grid[i];
+    //     if (colorIndex >= 0 && colorIndex < paletteColors.length) {
+    //       _cellColors.add(paletteColors[colorIndex]);
+    //     } else {
+    //       _cellColors.add(Colors.transparent);
+    //     }
+    //     k++;
+    //     if (k >= _sizeGrid) {
+    //       k = 0;
+    //       j++;
+    //     }
+    //   }
+    // });
 
     _printPixelArtGrid();
     logger.d(
@@ -157,15 +118,12 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   }
 
   void _initializePixelArtGrid(int size) {
-    _pixelArtGrid = List.generate(
-      size,
-      (_) => List.generate(size, (_) => -1),
-    );
+    _pixelArtGrid = List.generate(size, (_) => List.generate(size, (_) => -1));
   }
+
   void _printPixelArtGrid() {
     print(_pixelArtGrid);
-  } 
-
+  }
 
   @override
   void initState() {
@@ -180,10 +138,7 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
 
     _loadFinalPixelArtFromData();
 
-    
     _printPixelArtGrid();
-
-
   }
 
   @override
@@ -323,7 +278,10 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
                 ),
                 itemCount: _sizeGrid * _sizeGrid,
                 itemBuilder: (context, index) {
-                  final colorIndex = _getColorIndexForCell(index);
+                  final int row = index ~/ _sizeGrid;
+                  final int column = index % _sizeGrid;
+                  final colorIndex = _getColorIndexForCell(row, column);
+
                   return GestureDetector(
                     onTap:
                         _isPaintMode
@@ -332,7 +290,7 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
                                 _cellColors[index] = _selectedColor;
                               });
                               logger.d(
-                                'Painted cell $index with color $_selectedColor',
+                                'Painted cell $index (row: $row, col: $column) with color $_selectedColor',
                               );
                             }
                             : null, // Only allow tap if in Paint Mode.
