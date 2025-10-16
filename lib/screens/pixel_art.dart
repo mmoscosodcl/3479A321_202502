@@ -52,6 +52,7 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Code to handle changes in dependencies
+    _sizeGrid = context.watch<ConfigurationData>().size;
     logger.d("Dependencies changed in PixelArtScreen. Mounted: $mounted");
   }
   @override

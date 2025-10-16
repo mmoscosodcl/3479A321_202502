@@ -27,6 +27,7 @@ class ConfigurationScreen extends StatelessWidget {
             ),
             SizedBox(height: 8),
             DropdownButtonFormField<String>(
+              value: context.watch<ConfigurationData>().size.toString(),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Select Size',
