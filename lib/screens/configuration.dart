@@ -32,7 +32,7 @@ class ConfigurationScreen extends StatelessWidget {
                 border: OutlineInputBorder(),
                 labelText: 'Select Size',
               ),
-              items: ['16', '18', '20', '22', '24']
+              items: ['12','14','16', '18', '20', '22', '24']
                   .map((size) => DropdownMenuItem(
                         value: size,
                         child: Text(size),

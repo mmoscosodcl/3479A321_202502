@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:playground_2502/providers/config_provider.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui' as ui;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class PixelArtScreen extends StatefulWidget {
   const PixelArtScreen({super.key});
@@ -13,8 +16,9 @@ class PixelArtScreen extends StatefulWidget {
 class _PixelArtScreenState extends State<PixelArtScreen> {
   
   Logger logger = Logger();
-  int _sizeGrid = 16;
+  int _sizeGrid = 12;
   Color _selectedColor = Colors.black;
+  bool _saveInProgress = false;
   
   //List of color like wood pencils
   final List<Color> _listColors = [
@@ -33,11 +37,7 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   ];
 
   // Initialize a list to hold the colors of each cell in the grid
-  late List<Color> _cellColors = List<Color>.generate(
-    _sizeGrid * _sizeGrid,
-    (index) => Colors.transparent,
-  );
-  
+  late List<ValueNotifier<Color>> _cellColors;
 
   @override
   void initState() {
@@ -46,15 +46,28 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     logger.d("PixelArtScreen initialized. Mounted: $mounted");
     _sizeGrid = context.read<ConfigurationData>().size;
     logger.d("Grid size set to: $_sizeGrid");
+    _cellColors = List.generate(
+      _sizeGrid * _sizeGrid,
+      (_) => ValueNotifier<Color>(Colors.transparent),
+    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Code to handle changes in dependencies
-    _sizeGrid = context.watch<ConfigurationData>().size;
-    logger.d("Dependencies changed in PixelArtScreen. Mounted: $mounted");
+
+    // Update _sizeGrid and reinitialize _cellColors if the size changes
+    final newSize = context.watch<ConfigurationData>().size;
+    if (newSize != _sizeGrid) {
+      _sizeGrid = newSize;
+      _cellColors = List.generate(
+        _sizeGrid * _sizeGrid,
+        (_) => ValueNotifier<Color>(Colors.transparent),
+      );
+      logger.d("Grid size updated to: $_sizeGrid");
+    }
   }
+
   @override
   void didUpdateWidget(covariant PixelArtScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -71,7 +84,9 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
 
   @override
   void dispose() {
-    // Cleanup code here
+    for (final cell in _cellColors) {
+      cell.dispose();
+    }
     super.dispose();
     logger.d("PixelArtScreen disposed. Mounted: $mounted");
   }
@@ -83,8 +98,60 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     logger.d("PixelArtScreen reassembled. Mounted: $mounted");
   }
 
+  Future<void> _savePixelArt() async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder, Rect.fromLTWH(0, 0, _sizeGrid * 20.0, _sizeGrid * 20.0));
+
+    // Draw the grid as pixel art
+    for (int row = 0; row < _sizeGrid; row++) {
+      for (int col = 0; col < _sizeGrid; col++) {
+        final color = _cellColors[row * _sizeGrid + col].value;
+        final paint = Paint()..color = color;
+        final rect = Rect.fromLTWH(col * 20.0, row * 20.0, 20.0, 20.0);
+        canvas.drawRect(rect, paint);
+      }
+    }
+
+    // Convert the canvas to an image
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(_sizeGrid * 20, _sizeGrid * 20);
+
+    // Convert the image to bytes
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final imageBytes = byteData!.buffer.asUint8List();
+
+    // Get the app's directory
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/pixel_art_${DateTime.now().millisecondsSinceEpoch}.png';
+
+    // Save the image to the file
+    final file = File(filePath);
+    await file.writeAsBytes(imageBytes);
+
+    // Log the saved file path
+    logger.d("Pixel art saved to: $filePath");
+
+    // Optionally, save the file path to the provider or database
+    context.read<ConfigurationData>().addCreation(filePath);
+
+    // Show a confirmation message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Pixel art saved to: $filePath')),
+    );
+  }
+
+  Future<void> _debouncedSavePixelArt() async {
+    if (_saveInProgress) return;
+    _saveInProgress = true;
+
+    await _savePixelArt();
+
+    _saveInProgress = false;
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Creation Process'),
@@ -119,39 +186,43 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
                   },
                   child: const Text('Submit'),
                 ),
+                                ElevatedButton(
+                  onPressed: () async {
+                    await _savePixelArt();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Pixel art saved!')),
+                    );
+                  },
+                  child: const Text('Save Pixel Art'),
+                ),
                 ],
               ),
             ),
             // GridView above the footer
             Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: _sizeGrid,
-                ),
-                itemCount: _sizeGrid * _sizeGrid,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _cellColors[index] = _selectedColor;
-                      });
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.all(1),
-                      color: _cellColors[index],
-                      child: Center(
-                        child: Text(
-                          '$index',
-                          style: TextStyle(
-                            color: _cellColors[index] == Colors.black
-                                ? Colors.white
-                                : Colors.black,
+              child: RepaintBoundary(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _sizeGrid,
+                  ),
+                  itemCount: _sizeGrid * _sizeGrid,
+                  itemBuilder: (context, index) {
+                    return ValueListenableBuilder<Color>(
+                      valueListenable: _cellColors[index],
+                      builder: (context, color, child) {
+                        return GestureDetector(
+                          onTap: () {
+                            _cellColors[index].value = _selectedColor;
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.all(1),
+                            color: color,
                           ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
             // Footer with selectable colors
@@ -195,3 +266,4 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     );
   }
 }
+
