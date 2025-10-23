@@ -13,7 +13,7 @@ class SignInSignUpScreen extends StatelessWidget {
     return SignInScreen(
       providers: [
         EmailAuthProvider(),
-        GoogleProvider(clientId: "1:169972296739:web:d671605f2b8ed82b7e9596"),
+        GoogleProvider(clientId: "CLIENT_ID_HERE"),
         // Add other providers like PhoneAuthProvider(), AppleProvider(), etc.
       ],
       headerBuilder: (context, constraints, shrinkOffset) {
