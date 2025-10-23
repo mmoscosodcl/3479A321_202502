@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:playground_2502/models/pixel_art.dart';
 import 'package:playground_2502/providers/config_provider.dart';
+import 'package:playground_2502/services/firestore_services.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
 import 'dart:io';
@@ -98,7 +101,38 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     logger.d("PixelArtScreen reassembled. Mounted: $mounted");
   }
 
+
+  PixelArt generatePixelArtData() {
+    // Convert the grid colors to a string representation
+    String gridData = _cellColors.map((cell) {
+      final color = cell.value;
+      final colorIndex = _listColors.indexOf(color);
+      return colorIndex.toString(); // Index of the color in _listColors
+    }).join(',');
+
+    return PixelArt(
+      id: '', // ID will be assigned by Firestore
+      authorId: FirebaseAuth.instance.currentUser!.uid, // Replace with actual user ID
+      title: 'My Pixel Art',
+      description: 'Created with Pixel Art App',
+      size: {'width': _sizeGrid, 'height': _sizeGrid},
+      palette: _listColors.map((color) => color.value.toRadixString(16).padLeft(8, '0')).toList(),
+      gridData: gridData,
+      createdAt: DateTime.now(),
+      lastModifiedAt: DateTime.now(),
+    );
+  }
+
   Future<void> _savePixelArt() async {
+
+
+    logger.d("From Class pixel art...");
+    logger.d("generatePixelArtData() called.");
+    final pixelArt = generatePixelArtData();
+    logger.d("PixelArt data generated: ${pixelArt.toFirestore()}");
+
+
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder, Rect.fromLTWH(0, 0, _sizeGrid * 20.0, _sizeGrid * 20.0));
 
@@ -131,8 +165,9 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     // Log the saved file path
     logger.d("Pixel art saved to: $filePath");
 
-    // Optionally, save the file path to the provider or database
-    context.read<ConfigurationData>().addCreation(filePath);
+    // Here you can also save the pixelArt data to Firestore if needed
+    FirestoreService firestoreService = FirestoreService();
+    await firestoreService.createPixelArt(generatePixelArtData());
 
     // Show a confirmation message
     ScaffoldMessenger.of(context).showSnackBar(

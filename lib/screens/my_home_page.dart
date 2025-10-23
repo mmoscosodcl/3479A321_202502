@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -7,6 +9,8 @@ import 'package:playground_2502/screens/configuration.dart';
 import 'package:playground_2502/screens/list_art.dart';
 import 'package:playground_2502/screens/list_creations.dart';
 import 'package:playground_2502/screens/pixel_art.dart';
+import 'package:playground_2502/screens/sing_in_screen.dart';
+import 'package:playground_2502/services/firestore_services.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -19,11 +23,40 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   File? _lastImage; // To store the last created image file
+  final FirestoreService _firestoreService = FirestoreService(); // Instance of our service
+  late final StreamSubscription<User?> _authStateChangesSubscription; // To manage the stream subscription
 
   @override
   void initState() {
     super.initState();
     _loadLastImage(); // Load the last image when the screen initializes
+    // Listen for auth state changes to automatically log in or update profile
+    _authStateChangesSubscription = FirebaseAuth.instance.authStateChanges().listen((user) async {
+      if (user != null && mounted) {
+        // User is signed in (or a session was restored)
+        // Ensure their Firestore profile is created/updated
+        await _firestoreService.createUserProfile(
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+        );
+
+        // Now navigate to the home screen
+        // pushReplacement ensures the user can't go back to WelcomeScreen with the back button
+        /*if (mounted) { // Check if widget is still mounted before navigating
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const List()),
+          );
+        }*/
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // It's important to cancel the stream subscription when the widget is disposed
+    _authStateChangesSubscription.cancel(); // Ensure the subscription is managed correctly
+    super.dispose();
   }
 
   @override
@@ -85,6 +118,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialPageRoute(builder: (context) => ConfigurationScreen()),
                 );
               }
+              if (value == 'login') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignInSignUpScreen()),
+                );
+              }
             },
             itemBuilder: (BuildContext context) {
               return [
@@ -104,6 +143,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   value: 'configuration',
                   child: Text('Configuración'),
                 ),
+                const PopupMenuItem<String>(
+                  value: 'login',
+                  child: Text('Iniciar sesión'),
+                )
               ];
             },
           )
@@ -155,6 +198,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(width: 8),
                 ],
+              ),
+              //Show FirebaseAuth.instance.currentUser?.uid
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'User ID: ${FirebaseAuth.instance.currentUser?.uid ?? "Not signed in"}',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+
+              TextButton(
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+                },
+                child: const Text('Log Out'),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+
+                },
+                child: const Text('Compartir'),
               ),
             ],
           ),
