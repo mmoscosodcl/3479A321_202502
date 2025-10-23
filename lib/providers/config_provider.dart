@@ -6,9 +6,11 @@ class ConfigurationData with ChangeNotifier {
   final SharedPreferencesService _prefsService;
   int _size = 12;
   final List<String> _creations = [];
+  double _backgroundOpacity = 0.5;
 
   int get size => _size;
   List<String> get creations => _creations;
+  double get backgroundOpacity => _backgroundOpacity;
 
   ConfigurationData(this._prefsService) {
     _loadPreferences();
@@ -25,11 +27,13 @@ class ConfigurationData with ChangeNotifier {
     notifyListeners();
   }
 
+  void setBackgroundOpacity(double opacity) {
+    _backgroundOpacity = opacity;
+    notifyListeners();
+  }
+
   Future<void> _loadPreferences() async {
     _size = await _prefsService.getSize();
     notifyListeners();
   }
-
-
-
 }

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PixelArtScreen extends StatefulWidget {
   const PixelArtScreen({super.key});
@@ -19,6 +20,8 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   int _sizeGrid = 12;
   Color _selectedColor = Colors.black;
   bool _saveInProgress = false;
+  File? _backgroundImage; // To store the background image file
+  double _backgroundOpacity = 0.5; // Default opacity
   
   //List of color like wood pencils
   final List<Color> _listColors = [
@@ -149,6 +152,36 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     _saveInProgress = false;
   }
 
+  Future<void> _takePicture() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/background_image.png';
+
+      // Save the new image and delete the old one if it exists
+      final newImage = File(pickedFile.path);
+      if (_backgroundImage != null && _backgroundImage!.existsSync()) {
+        _backgroundImage!.deleteSync();
+      }
+      newImage.copySync(filePath);
+
+      setState(() {
+        _backgroundImage = File(filePath);
+      });
+    }
+  }
+
+  void _deleteBackgroundImage() {
+    if (_backgroundImage != null && _backgroundImage!.existsSync()) {
+      _backgroundImage!.deleteSync();
+    }
+    setState(() {
+      _backgroundImage = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -200,29 +233,43 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
             ),
             // GridView above the footer
             Expanded(
-              child: RepaintBoundary(
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: _sizeGrid,
-                  ),
-                  itemCount: _sizeGrid * _sizeGrid,
-                  itemBuilder: (context, index) {
-                    return ValueListenableBuilder<Color>(
-                      valueListenable: _cellColors[index],
-                      builder: (context, color, child) {
-                        return GestureDetector(
-                          onTap: () {
-                            _cellColors[index].value = _selectedColor;
+              child: Stack(
+                children: [
+                  if (_backgroundImage != null)
+                    Opacity(
+                      opacity: _backgroundOpacity,
+                      child: Image.file(
+                        _backgroundImage!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  RepaintBoundary(
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: _sizeGrid,
+                      ),
+                      itemCount: _sizeGrid * _sizeGrid,
+                      itemBuilder: (context, index) {
+                        return ValueListenableBuilder<Color>(
+                          valueListenable: _cellColors[index],
+                          builder: (context, color, child) {
+                            return GestureDetector(
+                              onTap: () {
+                                _cellColors[index].value = _selectedColor;
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.all(1),
+                                color: color,
+                              ),
+                            );
                           },
-                          child: Container(
-                            margin: const EdgeInsets.all(1),
-                            color: color,
-                          ),
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
             ),
             // Footer with selectable colors
@@ -231,32 +278,71 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
               color: Colors.grey[200],
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _listColors.map((color) {
-                    final bool isSelected = color == _selectedColor;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedColor = color;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        padding: EdgeInsets.all(isSelected ? 12 : 8),
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          border: isSelected
-                              ? Border.all(color: Colors.black, width: 2)
-                              : null,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _takePicture,
+                          icon: Icon(Icons.camera_alt),
+                          label: Text('Take Picture'),
                         ),
-                        width: isSelected ? 36 : 28,
-                        height: isSelected ? 36 : 28,
+                        const SizedBox(width: 16),
+                        if (_backgroundImage != null)
+                          ElevatedButton.icon(
+                            onPressed: _deleteBackgroundImage,
+                            icon: Icon(Icons.delete),
+                            label: Text('Remove Background'),
+                          ),
+                      ],
+                    ),
+                    if (_backgroundImage != null)
+                      Column(
+                        children: [
+                          Text('Adjust Background Opacity'),
+                          Slider(
+                            value: context.watch<ConfigurationData>().backgroundOpacity,
+                            min: 0.1,
+                            max: 1.0,
+                            divisions: 10,
+                            label: '${(context.watch<ConfigurationData>().backgroundOpacity * 100).toInt()}%',
+                            onChanged: (value) {
+                              context.read<ConfigurationData>().setBackgroundOpacity(value);
+                              _backgroundOpacity = value; 
+                              setState(() {});
+                            },
+                          ),
+                        ],
                       ),
-                    );
-                  }).toList(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _listColors.map((color) {
+                        final bool isSelected = color == _selectedColor;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedColor = color;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsets.all(isSelected ? 12 : 8),
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                              border: isSelected
+                                  ? Border.all(color: Colors.black, width: 2)
+                                  : null,
+                            ),
+                            width: isSelected ? 36 : 28,
+                            height: isSelected ? 36 : 28,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ),
               ),
             ),
