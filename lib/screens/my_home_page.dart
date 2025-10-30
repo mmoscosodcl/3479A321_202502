@@ -169,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
             (value) => _loadLastImage(),
           );
         },
-        backgroundColor: Colors.cyanAccent,
+        //backgroundColor: Colors.cyanAccent,
         tooltip: 'Create Pixel Art',
         heroTag: 'screen1_fab',
         child: const Icon(Icons.new_label),
